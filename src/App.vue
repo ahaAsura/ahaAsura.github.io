@@ -1,34 +1,67 @@
 <script setup>
-import { ref } from 'vue'
-
-const statusText = ref('Element Plus 已准备就绪，点击按钮体验组件。')
-
-const handleClick = () => {
-  const time = new Date().toLocaleTimeString()
-  statusText.value = `按钮已在 ${time} 点击！`
-}
+import HeaderBar from './components/HeaderBar.vue'
+import StatCards from './components/StatCards.vue'
+import FilterBar from './components/FilterBar.vue'
+import RankList from './components/RankList.vue'
+import CenterNetwork from './components/CenterNetwork.vue'
 </script>
 
 <template>
-  <main class="container">
-    <h1>Vue 3 + Element Plus 集成成功</h1>
-    <p>下方按钮来自 Element Plus 组件库：</p>
-    <el-button type="primary" @click="handleClick">Element Plus 测试按钮</el-button>
-    <p class="status">{{ statusText }}</p>
-  </main>
+  <div class="page">
+    <HeaderBar />
+
+    <section class="top">
+      <div class="spacer left-title">
+        <div class="panel-title">牵头医院</div>
+      </div>
+      <div class="cards-wrap">
+        <StatCards />
+        <FilterBar />
+      </div>
+      <div class="spacer right-title">
+        <div class="panel-title">医疗集团</div>
+      </div>
+    </section>
+
+    <section class="main">
+      <div class="side left">
+        <RankList title="临床会诊服务排行榜" />
+        <div style="height:24px" />
+        <RankList title="检查会诊服务排行榜" />
+      </div>
+      <div class="center">
+        <CenterNetwork />
+      </div>
+      <div class="side right">
+        <RankList title="临床会诊服务排行榜" />
+        <div style="height:24px" />
+        <RankList title="门诊会诊服务排行榜" />
+      </div>
+    </section>
+  </div>
+  
 </template>
 
 <style scoped>
-.container {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+.page {
+  min-height: 100vh;
+  background: radial-gradient(1000px 600px at 50% 60%, rgba(18,54,126,.8), rgba(3,16,51,1)), #061b43;
+}
+.top {
+  display: grid;
+  grid-template-columns: 320px 1fr 320px;
   align-items: center;
+  gap: 16px;
+  padding: 14px 16px 0 16px;
 }
-
-.status {
-  margin: 0;
-  font-size: 1.1rem;
-  color: #409eff;
+.panel-title { color:#8fc6ff; font-weight:900; letter-spacing:1px; }
+.cards-wrap { display:flex; flex-direction:column; gap:12px; }
+.main {
+  display: grid;
+  grid-template-columns: 360px 1fr 360px;
+  gap: 16px;
+  padding: 8px 16px 24px 16px;
 }
+.side { background: rgba(8,30,84,0.35); border-radius: 12px; padding: 10px; }
+.center { background: rgba(8,30,84,0.35); border-radius: 12px; padding: 10px; }
 </style>
