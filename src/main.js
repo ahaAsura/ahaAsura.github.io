@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
 import ElementPlus from 'element-plus'
-import RelationGraph from 'relation-graph'
+import RelationGraph from 'relation-graph/vue3'
 import 'element-plus/dist/index.css'
 import './style.css'
 import App from './App.vue'
