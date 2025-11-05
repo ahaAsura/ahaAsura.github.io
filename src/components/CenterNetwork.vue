@@ -1,76 +1,60 @@
 <script setup>
-import { onMounted, onBeforeUnmount, ref } from 'vue'
-import * as echarts from 'echarts'
+import { onMounted, ref } from 'vue'
 
-const chartRef = ref(null)
-let chart
+const graphRef = ref()
+
+const options = {
+  debug: false,
+  allowSwitchLineShape: true,
+  allowSwitchJunctionPoint: true,
+  defaultExpandHolderPosition: 'bottom',
+  defaultLineColor: 'rgba(80,160,255,0.6)',
+  defaultNodeBorderColor: 'rgba(64,158,255,0.8)',
+  defaultNodeColor: 'rgba(73,181,255,0.45)',
+  backgroundColor: 'transparent',
+}
 
 onMounted(() => {
-  chart = echarts.init(chartRef.value)
   render()
-  window.addEventListener('resize', resize)
 })
-
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', resize)
-  chart && chart.dispose()
-})
-
-function resize() {
-  chart && chart.resize()
-}
 
 function render() {
   const center = { x: 0, y: 0 }
   const radius = 220
   const names = ['集团医院1','集团医院2','集团医院3','集团医院4','集团医院5','集团医院6']
+
   const nodes = [
-    { name: '牵头医院', x: center.x, y: center.y, symbolSize: 80 },
-    ...names.map((n, i) => {
+    { id: 'center', text: '牵头医院', x: center.x, y: center.y, fontColor: '#cfe8ff', color: '#4cc3ff', borderColor: '#7cd1ff', width: 120, height: 60 },
+    ...names.map((name, i) => {
       const angle = (i / names.length) * Math.PI * 2
-      return { name: n, x: center.x + Math.cos(angle) * radius, y: center.y + Math.sin(angle) * radius, symbolSize: 50 }
+      return {
+        id: `n${i}`,
+        text: name,
+        x: center.x + Math.cos(angle) * radius,
+        y: center.y + Math.sin(angle) * radius,
+        color: 'rgba(103,224,227,0.6)',
+        borderColor: '#40a9ff',
+        width: 110,
+        height: 52,
+      }
     })
   ]
 
-  const links = names.map((n) => ({ source: '牵头医院', target: n }))
+  const lines = names.map((_, i) => ({ from: 'center', to: `n${i}`, color: 'rgba(80,160,255,0.8)' }))
+  const links = names.map((_, i) => ({ from: 'center', to: `n${i}`, color: 'rgba(80,160,255,0.8)' }))
 
-  const option = {
-    backgroundColor: 'transparent',
-    animationDuration: 1200,
-    tooltip: { trigger: 'item' },
-    series: [
-      {
-        type: 'graph',
-        layout: 'none',
-        coordinateSystem: null,
-        data: nodes,
-        links,
-        roam: false,
-        label: { show: true, color: '#cfe8ff', fontWeight: 'bold' },
-        itemStyle: {
-          color: function (params) {
-            return params.data.name === '牵头医院' ? '#4cc3ff' : '#67e0e3'
-          },
-          shadowBlur: 20,
-          shadowColor: 'rgba(0,0,0,0.45)'
-        },
-        lineStyle: { color: 'rgba(80,160,255,0.6)', width: 2 },
-        emphasis: { scale: true }
-      }
-    ]
-  }
-
-  chart.setOption(option)
+  graphRef.value.setJsonData({ rootId: 'center', nodes, lines, links })
 }
 </script>
 
 <template>
   <div class="center">
-    <div ref="chartRef" class="chart" />
+    <relation-graph ref="graphRef" :options="options" class="graph" />
   </div>
+  
 </template>
 
 <style scoped>
 .center { width: 100%; height: 560px; position: relative; }
-.chart { position: absolute; inset: 0; }
+.graph { position: absolute; inset: 0; }
 </style>
