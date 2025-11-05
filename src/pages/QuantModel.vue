@@ -1,18 +1,23 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import * as echarts from 'echarts'
 
 const days = ref(120)
 const predictDays = ref(30)
 const shortWin = ref(5)
 const longWin = ref(20)
-const resultText = ref('请点击“开始预测”生成示例数据并进行预测。')
+const resultText = ref('点击“开始预测”生成示例行情，并基于量化模型给出交易建议。')
+const metrics = ref(null)
 const chartRef = ref()
 let chart
 
 onMounted(() => {
   chart = echarts.init(chartRef.value)
   render([], [])
+})
+
+onBeforeUnmount(() => {
+  chart?.dispose()
 })
 
 function generateDemoPrices(n) {
@@ -60,12 +65,22 @@ function run() {
   const { slope, pred } = linRegForecast(src, Number(predictDays.value))
   const smaShort = sma(src, Number(shortWin.value))
   const smaLong = sma(src, Number(longWin.value))
+  const lastPrice = src.at(-1)
+  const forecastEnd = pred.at(-1)
+  const expectedReturn = forecastEnd && lastPrice ? (forecastEnd - lastPrice) / lastPrice : 0
 
   let advice
   if (slope > 0 && smaShort.at(-1) > smaLong.at(-1)) advice = '趋势向上，建议逢低做多' 
   else if (slope < 0 && smaShort.at(-1) < smaLong.at(-1)) advice = '趋势向下，建议谨慎或做空对冲'
   else advice = '趋势不明，保持观望'
-  resultText.value = `线性趋势斜率：${slope.toFixed(4)}。${advice}`
+  resultText.value = `线性趋势斜率：${slope.toFixed(4)}。${advice} 预计${predictDays.value}天后目标价：${forecastEnd?.toFixed(2)}，预期收益率约 ${(expectedReturn * 100).toFixed(2)}%。`
+  metrics.value = {
+    lastPrice,
+    forecastEnd,
+    expectedReturn,
+    slope,
+    advice
+  }
 
   render(src, pred, smaShort, smaLong)
 }
@@ -103,6 +118,15 @@ function render(src, pred = [], smaShort = [], smaLong = []) {
 
     <p class="hint">{{ resultText }}</p>
 
+    <el-card v-if="metrics" class="metrics" shadow="hover">
+      <el-descriptions :column="2" size="small" border>
+        <el-descriptions-item label="最新收盘价">{{ metrics.lastPrice?.toFixed(2) }}</el-descriptions-item>
+        <el-descriptions-item label="预测终值">{{ metrics.forecastEnd?.toFixed(2) }}</el-descriptions-item>
+        <el-descriptions-item label="预期收益">{{ (metrics.expectedReturn * 100).toFixed(2) }}%</el-descriptions-item>
+        <el-descriptions-item label="模型结论">{{ metrics.advice }}</el-descriptions-item>
+      </el-descriptions>
+    </el-card>
+
     <div ref="chartRef" class="chart" />
   </div>
 </template>
@@ -112,4 +136,7 @@ function render(src, pred = [], smaShort = [], smaLong = []) {
 .toolbar { display:flex; flex-wrap: wrap; gap: 12px; align-items:center; margin: 12px 0; }
 .chart { height: 520px; background: rgba(8,30,84,0.35); border-radius: 12px; }
 .hint { color:#9ad0ff; margin: 8px 0 12px; }
+.metrics { background: rgba(8,30,84,0.35); border-radius: 12px; color: #d1ecff; }
+:deep(.el-descriptions__label) { color: #8fc6ff; }
+:deep(.el-descriptions__content) { color: #d1ecff; }
 </style>
