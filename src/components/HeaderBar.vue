@@ -1,8 +1,4 @@
 <script setup>
-import { useRouter } from 'vue-router'
-
-const router = useRouter()
-const goToQuant = () => router.push('/quant')
 </script>
 
 <template>
@@ -15,7 +11,7 @@ const goToQuant = () => router.push('/quant')
         <a class="nav-item">院间转诊工作量分析</a>
         <a class="nav-item">院间会诊工作量分析</a>
       </nav>
-      <el-button type="primary" size="small" class="quant-btn" @click="goToQuant">量化模型预测</el-button>
+      <el-button type="primary" size="small" class="quant-btn" @click="$router.push('/quant')">量化模型预测</el-button>
     </div>
   </header>
   <div class="subline" />
