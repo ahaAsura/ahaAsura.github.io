@@ -1,30 +1,34 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
+import { ref } from 'vue'
+
+const statusText = ref('Element Plus 已准备就绪，点击按钮体验组件。')
+
+const handleClick = () => {
+  const time = new Date().toLocaleTimeString()
+  statusText.value = `按钮已在 ${time} 点击！`
+}
 </script>
 
 <template>
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
-  </div>
-  <HelloWorld msg="Vite + Vue" />
+  <main class="container">
+    <h1>Vue 3 + Element Plus 集成成功</h1>
+    <p>下方按钮来自 Element Plus 组件库：</p>
+    <el-button type="primary" @click="handleClick">Element Plus 测试按钮</el-button>
+    <p class="status">{{ statusText }}</p>
+  </main>
 </template>
 
 <style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: center;
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+
+.status {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #409eff;
 }
 </style>
